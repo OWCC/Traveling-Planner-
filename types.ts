@@ -1,4 +1,5 @@
 
+
 export interface Traveler {
   id: string;
   name: string;
@@ -94,5 +95,6 @@ export const CURRENCY_SYMBOLS: Record<string, string> = {
   SGD: 'S$',
   KRW: '₩',
   MXN: 'Mex$',
-  CHF: 'Fr'
+  CHF: 'Fr',
+  HKD: 'HK$'
 };
