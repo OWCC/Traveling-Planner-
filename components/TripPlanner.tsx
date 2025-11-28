@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { MapPin, Calendar as CalendarIcon, Sparkles, Map, Edit2, Save, X, Trash2, FileText, Mail, Plane, Plus, Link, CheckCircle, LogOut, ShieldAlert, CloudSun, Info, ExternalLink, RefreshCw, Image as ImageIcon, Navigation, Lightbulb, DollarSign, Map as MapIcon } from 'lucide-react';
 import { generateItinerary, parseFlightEmail, generateTripInsights } from '../services/geminiService';
@@ -434,9 +433,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
 
   const getStatusColor = (status?: string) => {
     const s = (status || '').toLowerCase();
-    if (s.includes('delay')) return 'bg-amber-100 text-amber-700 border-amber-200';
-    if (s.includes('cancel')) return 'bg-red-100 text-red-700 border-red-200';
-    return 'bg-green-100 text-green-700 border-green-200';
+    if (s.includes('delay')) return 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800';
+    if (s.includes('cancel')) return 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/40 dark:text-red-300 dark:border-red-800';
+    return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/40 dark:text-green-300 dark:border-green-800';
   };
 
   const getDirectionLink = (activities: Activity[]) => {
@@ -486,7 +485,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
         <Card className="p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-6">
             <Sparkles className="text-secondary w-5 h-5" />
-            <h2 className="text-xl font-bold text-gray-900">Plan New Trip</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Plan New Trip</h2>
           </div>
           
           <div className="space-y-4">
@@ -514,7 +513,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
                 <div className="relative">
                   <input 
                     type="date" 
@@ -530,7 +529,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
                 <div className="relative">
                   <input 
                     type="date" 
@@ -543,14 +542,14 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
               </div>
             </div>
             <div className="text-right">
-                <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded">
+                <span className="text-xs font-medium text-primary bg-primary/10 dark:bg-primary/20 px-2 py-1 rounded">
                     Duration: {duration} Days
                 </span>
             </div>
 
             {/* Currency Selector */}
             <div>
-               <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Currency</label>
                <select
                   className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
                   value={currency}
@@ -564,7 +563,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
 
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Budget Style</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Budget Style</label>
                   <select 
                     className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
                     value={formData.budget}
@@ -587,7 +586,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Interests (for AI)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Interests (for AI)</label>
               <textarea 
                 className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none placeholder-gray-400"
                 rows={3}
@@ -598,7 +597,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Additional Notes</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Additional Notes</label>
               <textarea 
                 className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none placeholder-gray-400"
                 rows={2}
@@ -620,9 +619,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                 </Button>
 
                 <div className="relative flex items-center py-2">
-                    <div className="flex-grow border-t border-gray-200"></div>
+                    <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
                     <span className="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase font-medium">Or</span>
-                    <div className="flex-grow border-t border-gray-200"></div>
+                    <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
                 </div>
 
                 <Button 
@@ -644,38 +643,38 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                         <Plane className="text-secondary w-5 h-5" />
-                        <h2 className="text-lg font-bold text-gray-900">Flight Tracking</h2>
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Flight Tracking</h2>
                     </div>
                 </div>
                 
                 {isFlightFormOpen ? (
-                     <div className="space-y-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                     <div className="space-y-3 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
                         <div className="flex justify-between items-center mb-2">
-                             <h4 className="text-sm font-bold text-gray-700">{editingFlightIndex !== null ? 'Edit Flight' : 'Add Flight'}</h4>
-                             <button onClick={cancelFlightEdit} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4"/></button>
+                             <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300">{editingFlightIndex !== null ? 'Edit Flight' : 'Add Flight'}</h4>
+                             <button onClick={cancelFlightEdit} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"><X className="w-4 h-4"/></button>
                         </div>
                         <input 
                             placeholder="Airline (e.g. United)"
-                            className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded text-sm"
+                            className="w-full px-2 py-1.5 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded text-sm"
                             value={tempFlight.airline}
                             onChange={e => setTempFlight({...tempFlight, airline: e.target.value})}
                         />
                         <input 
                             placeholder="Flight Number (e.g. UA 123)"
-                            className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded text-sm"
+                            className="w-full px-2 py-1.5 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded text-sm"
                             value={tempFlight.flightNumber}
                             onChange={e => setTempFlight({...tempFlight, flightNumber: e.target.value})}
                         />
                          <div className="grid grid-cols-2 gap-2">
                             <input 
                                 placeholder="Dep Airport"
-                                className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded text-sm"
+                                className="w-full px-2 py-1.5 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded text-sm"
                                 value={tempFlight.departureAirport}
                                 onChange={e => setTempFlight({...tempFlight, departureAirport: e.target.value})}
                             />
                             <input 
                                 placeholder="Arr Airport"
-                                className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded text-sm"
+                                className="w-full px-2 py-1.5 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded text-sm"
                                 value={tempFlight.arrivalAirport}
                                 onChange={e => setTempFlight({...tempFlight, arrivalAirport: e.target.value})}
                             />
@@ -683,13 +682,13 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                          <div className="grid grid-cols-2 gap-2">
                             <input 
                                 placeholder="Dep Time"
-                                className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded text-sm"
+                                className="w-full px-2 py-1.5 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded text-sm"
                                 value={tempFlight.departureTime}
                                 onChange={e => setTempFlight({...tempFlight, departureTime: e.target.value})}
                             />
                             <input 
                                 placeholder="Arr Time"
-                                className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded text-sm"
+                                className="w-full px-2 py-1.5 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded text-sm"
                                 value={tempFlight.arrivalTime}
                                 onChange={e => setTempFlight({...tempFlight, arrivalTime: e.target.value})}
                             />
@@ -703,14 +702,14 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                     <>
                         {!isGmailLinked ? (
                             <div className="space-y-3">
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
                                     Link your Google account to automatically find and track flights from your Gmail.
                                 </p>
                                 <Button 
                                     variant="outline" 
                                     onClick={handleLinkGmail}
                                     isLoading={flightLoading}
-                                    className="w-full border-gray-300 text-gray-700 hover:bg-gray-50"
+                                    className="w-full border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                                 >
                                     <Link className="w-4 h-4 mr-2" />
                                     Connect Google Account
@@ -718,12 +717,12 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                             </div>
                         ) : (
                             <div className="space-y-3">
-                                <div className="flex items-center justify-between bg-green-50 p-2 rounded border border-green-100">
+                                <div className="flex items-center justify-between bg-green-50 dark:bg-green-900/30 p-2 rounded border border-green-100 dark:border-green-800">
                                     <div className="flex items-center gap-2">
-                                        <div className="bg-green-100 p-1 rounded-full">
-                                            <Mail className="w-3 h-3 text-green-600" />
+                                        <div className="bg-green-100 dark:bg-green-800 p-1 rounded-full">
+                                            <Mail className="w-3 h-3 text-green-600 dark:text-green-300" />
                                         </div>
-                                        <span className="text-xs font-medium text-green-800">Gmail Connected</span>
+                                        <span className="text-xs font-medium text-green-800 dark:text-green-200">Gmail Connected</span>
                                     </div>
                                     <button onClick={handleUnlinkGmail} className="text-xs text-gray-400 hover:text-red-500">
                                         <LogOut className="w-3 h-3" />
@@ -742,9 +741,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                         )}
 
                         <div className="relative flex items-center py-4">
-                            <div className="flex-grow border-t border-gray-200"></div>
+                            <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
                             <span className="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase font-medium">Or</span>
-                            <div className="flex-grow border-t border-gray-200"></div>
+                            <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
                         </div>
 
                         <div className="space-y-2">
@@ -766,7 +765,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                     Paste email text...
                                 </button>
                             ) : (
-                                <div className="space-y-2 pt-2 border-t border-gray-100">
+                                <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700">
                                      <textarea 
                                         className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-xs"
                                         rows={3}
@@ -806,10 +805,10 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
       {/* Itinerary & Insights Display */}
       <div className="lg:col-span-2">
         {!trip && !loading ? (
-          <div className="h-full flex flex-col items-center justify-center text-center p-12 bg-white rounded-xl border border-dashed border-gray-300">
-            <Map className="w-16 h-16 text-gray-300 mb-4" />
-            <h3 className="text-xl font-medium text-gray-900">No trip planned yet</h3>
-            <p className="text-gray-500 max-w-sm mt-2">
+          <div className="h-full flex flex-col items-center justify-center text-center p-12 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+            <Map className="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
+            <h3 className="text-xl font-medium text-gray-900 dark:text-white">No trip planned yet</h3>
+            <p className="text-gray-500 dark:text-gray-400 max-w-sm mt-2">
               Enter your destination and dates on the left to get started.
             </p>
           </div>
@@ -817,7 +816,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
           <div className="space-y-6">
             {/* Header Image & Map */}
             {trip && (
-            <div className="relative h-48 rounded-2xl overflow-hidden shadow-md group bg-gray-200">
+            <div className="relative h-48 rounded-2xl overflow-hidden shadow-md group bg-gray-200 dark:bg-gray-700">
               {showMap ? (
                   <iframe 
                     width="100%" 
@@ -841,7 +840,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
               <div className="absolute top-4 right-4 z-10">
                   <button 
                     onClick={() => setShowMap(!showMap)}
-                    className="bg-white/90 backdrop-blur-sm p-2 rounded-lg shadow-sm hover:bg-white text-gray-700 transition-all text-xs font-bold flex items-center gap-2"
+                    className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-2 rounded-lg shadow-sm hover:bg-white dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-all text-xs font-bold flex items-center gap-2"
                   >
                       {showMap ? <ImageIcon className="w-4 h-4" /> : <Map className="w-4 h-4" />}
                       {showMap ? 'Photos' : 'Map'}
@@ -875,24 +874,24 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
 
             {/* Travel Insights / Safety / Weather */}
             {trip && (
-                <Card className="p-0 overflow-hidden border-orange-100 shadow-sm">
-                    <div className="bg-orange-50 px-4 py-3 border-b border-orange-100 flex justify-between items-center">
+                <Card className="p-0 overflow-hidden border-orange-100 dark:border-orange-900 shadow-sm">
+                    <div className="bg-orange-50 dark:bg-orange-900/30 px-4 py-3 border-b border-orange-100 dark:border-orange-900 flex justify-between items-center">
                         <div className="flex items-center gap-2">
-                            <ShieldAlert className="w-5 h-5 text-orange-600" />
-                            <h3 className="font-bold text-gray-900">Safety & Weather Insights</h3>
+                            <ShieldAlert className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                            <h3 className="font-bold text-gray-900 dark:text-white">Safety & Weather Insights</h3>
                         </div>
                         <Button 
                             variant="ghost" 
                             size="sm" 
                             onClick={handleFetchInsights}
                             isLoading={insightsLoading}
-                            className="text-orange-600 hover:bg-orange-100 hover:text-orange-800"
+                            className="text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900 hover:text-orange-800 dark:hover:text-orange-200"
                         >
                             <RefreshCw className="w-4 h-4 mr-1" />
                             Update Live Info
                         </Button>
                     </div>
-                    <div className="p-4 sm:p-6 bg-white">
+                    <div className="p-4 sm:p-6 bg-white dark:bg-gray-800">
                         {trip.insights ? (
                             <div className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -906,8 +905,8 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                         if (contentLines.length === 0) return null;
 
                                         return (
-                                            <div key={idx} className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                                <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                            <div key={idx} className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-600">
+                                                <h4 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                                                     {title.includes('Weather') && <CloudSun className="w-5 h-5 text-blue-500" />}
                                                     {title.includes('Safety') && <ShieldAlert className="w-5 h-5 text-red-500" />}
                                                     {title.includes('Emergency') && <Info className="w-5 h-5 text-green-500" />}
@@ -919,7 +918,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                                         const cleanLine = line.replace(/^[\*\-]\s*/, '').trim();
                                                         if (!cleanLine) return null;
                                                         return (
-                                                            <li key={liIdx} className="flex items-start gap-2 text-sm text-gray-600">
+                                                            <li key={liIdx} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
                                                                 <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0" />
                                                                 <span className="leading-tight">{cleanLine}</span>
                                                             </li>
@@ -932,7 +931,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                 </div>
                                 
                                 {trip.insights.sources && trip.insights.sources.length > 0 && (
-                                    <div className="pt-4 border-t border-gray-100 mt-4">
+                                    <div className="pt-4 border-t border-gray-100 dark:border-gray-700 mt-4">
                                         <p className="text-xs font-bold text-gray-400 uppercase mb-2">Sources</p>
                                         <div className="flex flex-wrap gap-2">
                                             {trip.insights.sources.map((source, idx) => (
@@ -941,7 +940,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                                     href={source.uri} 
                                                     target="_blank" 
                                                     rel="noopener noreferrer"
-                                                    className="flex items-center gap-1 text-xs text-blue-600 hover:underline bg-blue-50 px-2 py-1 rounded"
+                                                    className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded"
                                                 >
                                                     {source.title}
                                                     <ExternalLink className="w-3 h-3" />
@@ -954,9 +953,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                         ) : (
                             <div className="text-center py-4">
                                 {insightsLoading ? (
-                                    <span className="text-gray-500">Scanning safety advisories and forecast...</span>
+                                    <span className="text-gray-500 dark:text-gray-400">Scanning safety advisories and forecast...</span>
                                 ) : (
-                                    <p className="text-gray-500">
+                                    <p className="text-gray-500 dark:text-gray-400">
                                         No active insights. Click "Update Live Info" to scan for safety and weather alerts.
                                     </p>
                                 )}
@@ -969,18 +968,18 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
             {/* Flights Section */}
             {trip?.flights && trip.flights.length > 0 && (
                 <div className="space-y-4">
-                    <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                         <Plane className="w-5 h-5 text-primary" />
                         Travel Details
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {trip.flights.map((flight, idx) => (
-                            <Card key={idx} className="p-4 bg-white border-l-4 border-l-blue-500 relative group hover:shadow-md transition-all">
+                            <Card key={idx} className="p-4 bg-white dark:bg-gray-800 border-l-4 border-l-blue-500 relative group hover:shadow-md transition-all">
                                 <div className="flex justify-between items-start mb-3">
                                     <div>
-                                        <p className="text-xs text-gray-500 font-bold uppercase">{flight.airline}</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase">{flight.airline}</p>
                                         <div className="flex items-center gap-2">
-                                            <p className="font-mono font-bold text-gray-900">{flight.flightNumber}</p>
+                                            <p className="font-mono font-bold text-gray-900 dark:text-white">{flight.flightNumber}</p>
                                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${getStatusColor(flight.status)}`}>
                                                 {flight.status || 'On Time'}
                                             </span>
@@ -989,13 +988,13 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                     <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                         <button 
                                             onClick={() => openFlightForm(flight, idx)}
-                                            className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded"
+                                            className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded"
                                         >
                                             <Edit2 className="w-3 h-3" />
                                         </button>
                                         <button 
                                             onClick={() => deleteFlight(idx)}
-                                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
                                         >
                                             <Trash2 className="w-3 h-3" />
                                         </button>
@@ -1003,17 +1002,17 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                 </div>
                                 <div className="flex items-center justify-between text-sm">
                                     <div className="text-center">
-                                        <div className="text-2xl font-bold text-gray-800">{flight.departureAirport}</div>
-                                        <div className="text-xs text-gray-500">{flight.departureTime}</div>
+                                        <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">{flight.departureAirport}</div>
+                                        <div className="text-xs text-gray-500 dark:text-gray-400">{flight.departureTime}</div>
                                     </div>
                                     <div className="flex-1 flex flex-col items-center px-4">
-                                        <div className="w-full h-px bg-gray-300 relative">
+                                        <div className="w-full h-px bg-gray-300 dark:bg-gray-600 relative">
                                             <Plane className="w-3 h-3 text-blue-500 absolute left-1/2 -top-1.5 -ml-1.5 transform rotate-90" />
                                         </div>
                                     </div>
                                     <div className="text-center">
-                                        <div className="text-2xl font-bold text-gray-800">{flight.arrivalAirport}</div>
-                                        <div className="text-xs text-gray-500">{flight.arrivalTime}</div>
+                                        <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">{flight.arrivalAirport}</div>
+                                        <div className="text-xs text-gray-500 dark:text-gray-400">{flight.arrivalTime}</div>
                                     </div>
                                 </div>
                             </Card>
@@ -1032,17 +1031,17 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
 
                 return (
                 <Card key={dayIndex} className="p-0 border-l-4 border-l-primary">
-                  <div className="bg-gray-50 px-4 sm:px-6 py-4 border-b border-gray-100 flex justify-between items-center flex-wrap gap-2">
+                  <div className="bg-gray-50 dark:bg-gray-700/30 px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center flex-wrap gap-2">
                     <div className="flex items-baseline gap-2">
-                        <h3 className="font-bold text-lg text-gray-900">Day {day.day}</h3>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white">Day {day.day}</h3>
                         {dayDate && (
-                            <span className="text-sm font-medium text-gray-500 bg-white px-2 py-0.5 rounded border border-gray-200">
+                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-600">
                                 {dayDate}
                             </span>
                         )}
                     </div>
                     <div className="flex items-center gap-2 sm:gap-3">
-                         <span className="text-sm font-medium px-3 py-1 rounded-full bg-teal-50 text-primary border border-teal-100 hidden sm:inline-block">
+                         <span className="text-sm font-medium px-3 py-1 rounded-full bg-teal-50 dark:bg-teal-900/30 text-primary dark:text-teal-300 border border-teal-100 dark:border-teal-800 hidden sm:inline-block">
                           {day.theme}
                         </span>
                         
@@ -1052,7 +1051,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                     href={routeLink} 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full transition-colors border border-blue-100"
+                                    className="flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 px-3 py-1.5 rounded-full transition-colors border border-blue-100 dark:border-blue-800"
                                     title="View planning direction on map"
                                 >
                                     <Navigation className="w-3 h-3" />
@@ -1064,7 +1063,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                     className={`flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-full transition-colors border ${
                                         isMapOpen 
                                           ? 'bg-blue-600 text-white border-blue-600' 
-                                          : 'text-blue-600 bg-blue-50 hover:bg-blue-100 border-blue-100'
+                                          : 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 border-blue-100 dark:border-blue-800'
                                     }`}
                                 >
                                     <MapIcon className="w-3 h-3" />
@@ -1081,7 +1080,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                   
                   {/* Route Map */}
                   {isMapOpen && embedUrl && (
-                      <div className="h-64 w-full bg-gray-100 border-b border-gray-200">
+                      <div className="h-64 w-full bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
                           <iframe
                               width="100%"
                               height="100%"
@@ -1092,12 +1091,12 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                       </div>
                   )}
                   {isMapOpen && !embedUrl && hasActivities && (
-                      <div className="p-4 text-center text-sm text-gray-500 bg-gray-50 border-b border-gray-200">
+                      <div className="p-4 text-center text-sm text-gray-500 bg-gray-50 dark:bg-gray-700/30 border-b border-gray-200 dark:border-gray-700">
                           Not enough location data to generate a route map.
                       </div>
                   )}
 
-                  <div className="divide-y divide-gray-100">
+                  <div className="divide-y divide-gray-100 dark:divide-gray-700">
                     {day.activities.length === 0 && (
                         <div className="p-8 text-center text-gray-400 text-sm">
                             No activities planned for this day yet.
@@ -1107,13 +1106,13 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                       const isEditing = editingCell?.dayIndex === dayIndex && editingCell?.actIndex === actIndex;
                       
                       return (
-                        <div key={actIndex} className={`p-4 sm:p-6 transition-colors ${isEditing ? 'bg-amber-50' : 'hover:bg-gray-50'} group`}>
+                        <div key={actIndex} className={`p-4 sm:p-6 transition-colors ${isEditing ? 'bg-amber-50 dark:bg-amber-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'} group`}>
                           {isEditing && tempActivity ? (
                               // Edit Mode: Inputs
                               <div className="flex flex-col gap-4">
                                   <div className="flex gap-2 sm:gap-4">
                                       <div className="w-24 sm:w-32">
-                                          <label className="text-xs text-gray-500 font-semibold uppercase mb-1 block">Time</label>
+                                          <label className="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase mb-1 block">Time</label>
                                           <input 
                                               value={tempActivity.time}
                                               onChange={(e) => updateTempActivity('time', e.target.value)}
@@ -1121,7 +1120,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                           />
                                       </div>
                                       <div className="flex-1">
-                                           <label className="text-xs text-gray-500 font-semibold uppercase mb-1 block">Activity</label>
+                                           <label className="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase mb-1 block">Activity</label>
                                           <input 
                                               value={tempActivity.activity}
                                               onChange={(e) => updateTempActivity('activity', e.target.value)}
@@ -1131,7 +1130,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                   </div>
                                   <div className="flex gap-2 sm:gap-4">
                                       <div className="flex-1">
-                                           <label className="text-xs text-gray-500 font-semibold uppercase mb-1 block">Location</label>
+                                           <label className="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase mb-1 block">Location</label>
                                           <div className="relative">
                                               <MapPin className="w-3 h-3 absolute left-2.5 top-2.5 text-gray-400" />
                                               <input 
@@ -1142,7 +1141,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                           </div>
                                       </div>
                                       <div className="w-1/3">
-                                           <label className="text-xs text-gray-500 font-semibold uppercase mb-1 block">Cost</label>
+                                           <label className="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase mb-1 block">Cost</label>
                                           <div className="relative">
                                               <span className="absolute left-2.5 top-2.5 text-gray-400 text-xs">{symbol}</span>
                                               <input 
@@ -1155,7 +1154,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                       </div>
                                   </div>
                                   <div>
-                                      <label className="text-xs text-gray-500 font-semibold uppercase mb-1 block">Description</label>
+                                      <label className="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase mb-1 block">Description</label>
                                       <textarea 
                                           value={tempActivity.description}
                                           onChange={(e) => updateTempActivity('description', e.target.value)}
@@ -1172,12 +1171,12 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                               // View Mode: Display
                               <div className="flex gap-2 sm:gap-4">
                                   <div className="w-16 sm:w-20 pt-1 flex-shrink-0">
-                                      <span className="text-sm font-bold text-gray-900 block">{act.time}</span>
+                                      <span className="text-sm font-bold text-gray-900 dark:text-white block">{act.time}</span>
                                   </div>
                                   <div className="flex-grow space-y-1">
-                                      <h4 className="font-bold text-gray-900">{act.activity}</h4>
-                                      <p className="text-gray-600 text-sm">{act.description}</p>
-                                      <div className="flex items-center gap-4 text-xs text-gray-500 pt-1">
+                                      <h4 className="font-bold text-gray-900 dark:text-white">{act.activity}</h4>
+                                      <p className="text-gray-600 dark:text-gray-300 text-sm">{act.description}</p>
+                                      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 pt-1">
                                           <a 
                                             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.location)}`}
                                             target="_blank"
@@ -1188,7 +1187,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                               <span className="group-hover/link:underline">{act.location}</span>
                                           </a>
                                           {act.estimatedCost && (
-                                              <span className="flex items-center gap-1 text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full">
+                                              <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">
                                                   {symbol} {act.estimatedCost}
                                               </span>
                                           )}
@@ -1197,14 +1196,14 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                   <div className="flex-shrink-0 flex flex-col gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                       <button 
                                           onClick={() => startEditingActivity(dayIndex, actIndex, act)}
-                                          className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                          className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded"
                                           title="Edit"
                                       >
                                           <Edit2 className="w-4 h-4" />
                                       </button>
                                       <button 
                                           onClick={() => removeActivity(dayIndex, actIndex)}
-                                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
                                           title="Remove"
                                       >
                                           <Trash2 className="w-4 h-4" />

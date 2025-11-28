@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useMemo } from 'react';
 import { Plus, Camera, Receipt, Trash2, TrendingUp, PieChart, Users, ArrowRight, Folder, FolderPlus, Check, X } from 'lucide-react';
 import { PieChart as RePieChart, Pie, Cell, ResponsiveContainer, Tooltip as ReTooltip, Legend } from 'recharts';
@@ -223,7 +222,7 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
                 className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                     activeFolderId === folder.id && !viewAllFolders
                         ? 'bg-primary text-white shadow-md' 
-                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
                 }`}
             >
                 <Folder className="w-4 h-4" />
@@ -232,13 +231,13 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
         ))}
         
         {isCreatingFolder ? (
-            <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-gray-200 shadow-sm animate-in fade-in slide-in-from-left-4">
+            <div className="flex items-center gap-1 bg-white dark:bg-gray-800 p-1 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm animate-in fade-in slide-in-from-left-4">
                 <input 
                     autoFocus
                     value={newFolderName}
                     onChange={(e) => setNewFolderName(e.target.value)}
                     placeholder="Folder Name"
-                    className="px-3 py-1 bg-transparent text-sm focus:outline-none w-32"
+                    className="px-3 py-1 bg-transparent text-sm focus:outline-none w-32 dark:text-white"
                     onKeyDown={(e) => e.key === 'Enter' && handleCreateFolder()}
                 />
                 <button onClick={handleCreateFolder} className="p-1 bg-green-100 text-green-600 rounded-full hover:bg-green-200">
@@ -251,7 +250,7 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
         ) : (
             <button 
                 onClick={() => setIsCreatingFolder(true)}
-                className="flex items-center gap-1 px-3 py-2 rounded-full text-sm font-medium text-gray-500 hover:text-primary hover:bg-teal-50 border border-transparent border-dashed hover:border-teal-200 transition-all whitespace-nowrap"
+                className="flex items-center gap-1 px-3 py-2 rounded-full text-sm font-medium text-gray-500 hover:text-primary hover:bg-teal-50 dark:hover:bg-teal-900/30 border border-transparent border-dashed hover:border-teal-200 transition-all whitespace-nowrap"
             >
                 <FolderPlus className="w-4 h-4" />
                 New Folder
@@ -261,19 +260,19 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-4 flex items-center justify-between bg-teal-50 border-teal-100">
+        <Card className="p-4 flex items-center justify-between bg-teal-50 dark:bg-teal-900/20 border-teal-100 dark:border-teal-800">
           <div>
-            <p className="text-sm text-teal-600 font-medium">
+            <p className="text-sm text-teal-600 dark:text-teal-400 font-medium">
                 Total Spent {viewAllFolders ? '(All)' : `(${folders.find(f => f.id === activeFolderId)?.name})`}
             </p>
-            <h3 className="text-2xl font-bold text-teal-900">{symbol}{totalSpent.toFixed(2)}</h3>
+            <h3 className="text-2xl font-bold text-teal-900 dark:text-teal-100">{symbol}{totalSpent.toFixed(2)}</h3>
           </div>
           <TrendingUp className="text-teal-500 w-8 h-8" />
         </Card>
         <Card className="p-4 flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500 font-medium">Expenses Count</p>
-            <h3 className="text-2xl font-bold text-gray-900">{filteredExpenses.length}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Expenses Count</p>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{filteredExpenses.length}</h3>
           </div>
           <Receipt className="text-gray-400 w-8 h-8" />
         </Card>
@@ -313,8 +312,8 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
           
           {/* Add Expense Form */}
           {isAdding && (
-            <Card className="p-4 sm:p-6 border-2 border-primary/20 bg-white">
-               <h3 className="text-lg font-bold mb-4">New Expense in "{folders.find(f => f.id === activeFolderId)?.name}"</h3>
+            <Card className="p-4 sm:p-6 border-2 border-primary/20 bg-white dark:bg-gray-800">
+               <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">New Expense in "{folders.find(f => f.id === activeFolderId)?.name}"</h3>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                  <Input 
                   label="Description" 
@@ -335,7 +334,7 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
                 />
                  <div className="mb-4">
                     <div className="flex justify-between items-center mb-1">
-                        <label className="block text-sm font-medium text-gray-700">Category</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
                         {!isCreatingCategory ? (
                              <button onClick={() => setIsCreatingCategory(true)} className="text-xs text-primary hover:underline flex items-center">
                                  <Plus className="w-3 h-3 mr-1" /> New
@@ -367,7 +366,7 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
                     )}
                  </div>
                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Paid By</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Paid By</label>
                     <select 
                       className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg"
                       value={newExpense.payerId}
@@ -377,7 +376,7 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
                     </select>
                  </div>
                  <div className="mb-4 md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Split Between</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Split Between</label>
                     <div className="flex flex-wrap gap-2">
                       {travelers.map(t => (
                         <button
@@ -392,7 +391,7 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
                           className={`px-3 py-1 rounded-full text-sm border transition-colors ${
                             newExpense.splitBetween?.includes(t.id)
                               ? 'bg-primary text-white border-primary'
-                              : 'bg-gray-100 text-gray-600 border-gray-200'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600'
                           }`}
                         >
                           {t.name}
@@ -409,23 +408,23 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
           )}
 
           {/* Views Tabs */}
-          <div className="flex justify-between items-end border-b border-gray-200">
+          <div className="flex justify-between items-end border-b border-gray-200 dark:border-gray-700">
             <div className="flex space-x-1 sm:space-x-2">
                 <button
                 onClick={() => setActiveView('list')}
-                className={`pb-2 px-2 sm:px-4 text-xs sm:text-sm font-medium transition-colors ${activeView === 'list' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700'}`}
+                className={`pb-2 px-2 sm:px-4 text-xs sm:text-sm font-medium transition-colors ${activeView === 'list' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                 >
                 Recent
                 </button>
                 <button
                 onClick={() => setActiveView('analytics')}
-                className={`pb-2 px-2 sm:px-4 text-xs sm:text-sm font-medium transition-colors ${activeView === 'analytics' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700'}`}
+                className={`pb-2 px-2 sm:px-4 text-xs sm:text-sm font-medium transition-colors ${activeView === 'analytics' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                 >
                 Analytics
                 </button>
                 <button
                 onClick={() => setActiveView('settle')}
-                className={`pb-2 px-2 sm:px-4 text-xs sm:text-sm font-medium transition-colors ${activeView === 'settle' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700'}`}
+                className={`pb-2 px-2 sm:px-4 text-xs sm:text-sm font-medium transition-colors ${activeView === 'settle' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                 >
                 Settle Debts
                 </button>
@@ -434,10 +433,10 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
             {(activeView === 'analytics' || activeView === 'settle') && (
                 <div className="pb-2">
                     <label className="flex items-center cursor-pointer">
-                        <span className="mr-2 text-xs text-gray-500">{viewAllFolders ? 'All' : 'Current'}</span>
+                        <span className="mr-2 text-xs text-gray-500 dark:text-gray-400">{viewAllFolders ? 'All' : 'Current'}</span>
                         <div className="relative">
                         <input type="checkbox" className="sr-only" checked={viewAllFolders} onChange={() => setViewAllFolders(!viewAllFolders)} />
-                        <div className={`block w-8 h-5 rounded-full ${viewAllFolders ? 'bg-primary' : 'bg-gray-300'}`}></div>
+                        <div className={`block w-8 h-5 rounded-full ${viewAllFolders ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'}`}></div>
                         <div className={`dot absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform ${viewAllFolders ? 'transform translate-x-3' : ''}`}></div>
                         </div>
                     </label>
@@ -448,15 +447,15 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
           {activeView === 'list' && (
             <div className="space-y-4">
               {filteredExpenses.length === 0 ? (
-                <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                    <p className="text-gray-500 mb-2">No expenses in this folder.</p>
+                <div className="text-center py-12 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                    <p className="text-gray-500 dark:text-gray-400 mb-2">No expenses in this folder.</p>
                     <Button variant="ghost" size="sm" onClick={() => setIsAdding(true)}>Add your first expense</Button>
                 </div>
               ) : (
                 filteredExpenses.map(expense => (
                   <Card key={expense.id} className="p-4 flex items-center justify-between hover:shadow-md transition-shadow group">
                     <div className="flex items-center gap-4">
-                      <div className={`p-3 rounded-full flex-shrink-0 bg-gray-100 text-gray-600`}>
+                      <div className={`p-3 rounded-full flex-shrink-0 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300`}>
                         {expense.category === 'Food' ? '🍔' : 
                          expense.category === 'Transport' ? '🚕' : 
                          expense.category === 'Accommodation' ? '🏨' :
@@ -464,16 +463,16 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
                          expense.category === 'Other' ? '📄' : '🏷️'}
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900 line-clamp-1">{expense.description}</h4>
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                        <h4 className="font-semibold text-gray-900 dark:text-white line-clamp-1">{expense.description}</h4>
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                            <span>{travelers.find(t => t.id === expense.payerId)?.name}</span>
                            <span>•</span>
                            <span>{expense.date}</span>
-                           <span className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">{expense.category}</span>
+                           <span className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-gray-600 dark:text-gray-300">{expense.category}</span>
                            {viewAllFolders && expense.folderId && (
                                <>
                                 <span className="hidden sm:inline">•</span>
-                                <span className="bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">
+                                <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded">
                                     {folders.find(f => f.id === expense.folderId)?.name}
                                 </span>
                                </>
@@ -482,10 +481,10 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
                       </div>
                     </div>
                     <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-                      <span className="font-bold text-lg text-gray-900">{symbol}{expense.amount.toFixed(2)}</span>
+                      <span className="font-bold text-lg text-gray-900 dark:text-white">{symbol}{expense.amount.toFixed(2)}</span>
                       <button 
                         onClick={() => onUpdateExpenses(expenses.filter(e => e.id !== expense.id))}
-                        className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all"
+                        className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -498,7 +497,7 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
 
           {activeView === 'analytics' && (
              <Card className="p-6 h-96">
-               <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+               <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-white">
                  <PieChart className="w-5 h-5 text-gray-500" />
                  Spend by Category {viewAllFolders ? '(All)' : `(${folders.find(f => f.id === activeFolderId)?.name})`}
                </h3>
@@ -531,26 +530,26 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
 
           {activeView === 'settle' && (
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
                   Settlements {viewAllFolders ? '(All)' : `(${folders.find(f => f.id === activeFolderId)?.name})`}
               </h3>
               {calculateSettlements().length === 0 ? (
-                <div className="text-center py-12 text-green-600 font-medium bg-green-50 rounded-xl border border-green-100">
+                <div className="text-center py-12 text-green-600 dark:text-green-400 font-medium bg-green-50 dark:bg-green-900/30 rounded-xl border border-green-100 dark:border-green-800">
                   <Check className="w-8 h-8 mx-auto mb-2 text-green-500" />
                   All settled up! No one owes anything.
                 </div>
               ) : (
                 calculateSettlements().map((settlement, idx) => (
-                  <Card key={idx} className="p-5 flex items-center justify-between border-l-4 border-l-secondary bg-white">
+                  <Card key={idx} className="p-5 flex items-center justify-between border-l-4 border-l-secondary bg-white dark:bg-gray-800">
                     <div className="flex items-center gap-3">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-gray-900 dark:text-white">
                         {travelers.find(t => t.id === settlement.fromId)?.name}
                       </div>
                       <div className="flex flex-col items-center px-2">
                          <span className="text-xs text-gray-400 uppercase font-bold tracking-wider">owes</span>
                          <ArrowRight className="w-4 h-4 text-gray-300" />
                       </div>
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-gray-900 dark:text-white">
                         {travelers.find(t => t.id === settlement.toId)?.name}
                       </div>
                     </div>
@@ -566,14 +565,14 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
         <div className="lg:col-span-1">
           <Card className="p-6 sticky top-24">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-gray-900 flex items-center gap-2">
+              <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <Users className="w-5 h-5" /> Travelers
               </h3>
             </div>
             <div className="space-y-3">
               {travelers.map(t => (
-                <div key={t.id} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
-                  <span className="font-medium text-gray-700">{t.name}</span>
+                <div key={t.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                  <span className="font-medium text-gray-700 dark:text-gray-200">{t.name}</span>
                   {travelers.length > 1 && (
                     <button 
                       onClick={() => onUpdateTravelers(travelers.filter(tr => tr.id !== t.id))}
@@ -584,7 +583,7 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
                   )}
                 </div>
               ))}
-              <div className="pt-4 border-t border-gray-100">
+              <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
                 <form 
                   onSubmit={(e) => {
                     e.preventDefault();

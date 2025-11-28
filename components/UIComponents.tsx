@@ -2,7 +2,7 @@ import React, { InputHTMLAttributes, ButtonHTMLAttributes } from 'react';
 import { Loader2 } from 'lucide-react';
 
 export const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <div className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden ${className}`}>
+  <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors ${className}`}>
     {children}
   </div>
 );
@@ -33,8 +33,8 @@ export const Button: React.FC<ButtonProps> = ({
   const variants = {
     primary: "bg-primary text-white hover:bg-teal-800 focus:ring-primary",
     secondary: "bg-secondary text-white hover:bg-amber-600 focus:ring-secondary",
-    outline: "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary",
-    ghost: "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+    outline: "border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-primary",
+    ghost: "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200",
   };
 
   return (
@@ -55,7 +55,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export const Input: React.FC<InputProps> = ({ label, className = '', ...props }) => (
   <div className="mb-4">
-    {label && <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>}
+    {label && <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>}
     <input
       className={`w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors placeholder-gray-400 ${className}`}
       {...props}

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plane, Wallet, Users, LayoutDashboard, Save, FolderOpen, Plus, Trash2 } from 'lucide-react';
 import { TripPlanner } from './components/TripPlanner';
@@ -194,9 +193,9 @@ const App: React.FC = () => {
   }, [tripDetails, travelers, expenses, expenseFolders, categories, currency, tripName, activeTripId]);
 
   return (
-    <div className="min-h-screen bg-background text-gray-800 font-sans">
+    <div className="min-h-screen bg-background dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans transition-colors duration-200">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+      <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50 dark:border-b dark:border-gray-700">
         <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
@@ -206,17 +205,17 @@ const App: React.FC = () => {
               <input 
                 value={tripName}
                 onChange={(e) => setTripName(e.target.value)}
-                className="font-bold text-lg tracking-tight text-gray-900 bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:outline-none transition-colors w-24 sm:w-48 lg:w-auto"
+                className="font-bold text-lg tracking-tight text-gray-900 dark:text-white bg-transparent border-b border-transparent hover:border-gray-300 dark:hover:border-gray-600 focus:border-primary focus:outline-none transition-colors w-24 sm:w-48 lg:w-auto"
               />
             </div>
             
-            <nav className="flex space-x-1 bg-gray-100 p-1 rounded-xl mx-2 sm:mx-4">
+            <nav className="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-xl mx-2 sm:mx-4">
               <button
                 onClick={() => setActiveTab('planner')}
                 className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   activeTab === 'planner' 
-                    ? 'bg-white text-primary shadow-sm' 
-                    : 'text-gray-500 hover:text-gray-900'
+                    ? 'bg-white dark:bg-gray-600 text-primary dark:text-teal-400 shadow-sm' 
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                 }`}
               >
                 <LayoutDashboard className="w-4 h-4 sm:mr-2" />
@@ -226,8 +225,8 @@ const App: React.FC = () => {
                 onClick={() => setActiveTab('expenses')}
                 className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   activeTab === 'expenses' 
-                    ? 'bg-white text-primary shadow-sm' 
-                    : 'text-gray-500 hover:text-gray-900'
+                    ? 'bg-white dark:bg-gray-600 text-primary dark:text-teal-400 shadow-sm' 
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                 }`}
               >
                 <Wallet className="w-4 h-4 sm:mr-2" />
@@ -243,9 +242,9 @@ const App: React.FC = () => {
                 </Button>
                 
                 {showLoadMenu && (
-                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
-                    <div className="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
-                        <span className="text-xs font-bold text-gray-500 uppercase">My Trips</span>
+                  <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50">
+                    <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                        <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">My Trips</span>
                         <Button size="sm" variant="ghost" onClick={createNewTrip} className="h-6 text-xs px-2">
                             <Plus className="w-3 h-3 mr-1" /> New
                         </Button>
@@ -256,10 +255,10 @@ const App: React.FC = () => {
                             <div 
                                 key={trip.id}
                                 onClick={() => loadTrip(trip.id)}
-                                className={`px-4 py-3 hover:bg-gray-50 cursor-pointer flex justify-between items-center group ${activeTripId === trip.id ? 'bg-teal-50 border-l-4 border-primary' : ''}`}
+                                className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex justify-between items-center group ${activeTripId === trip.id ? 'bg-teal-50 dark:bg-teal-900/30 border-l-4 border-primary' : ''}`}
                             >
                                 <div>
-                                    <div className="font-medium text-gray-800 text-sm">{trip.name}</div>
+                                    <div className="font-medium text-gray-800 dark:text-gray-200 text-sm">{trip.name}</div>
                                     <div className="text-xs text-gray-400">{new Date(trip.lastUpdated).toLocaleDateString()}</div>
                                 </div>
                                 <button 
