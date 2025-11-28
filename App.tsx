@@ -17,6 +17,7 @@ const DEFAULT_FOLDERS: ExpenseFolder[] = [
 ];
 
 const DEFAULT_CATEGORIES = ['Food', 'Transport', 'Accommodation', 'Activity', 'Other'];
+const DEFAULT_CURRENCY = 'USD';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'planner' | 'expenses' | 'settings'>('planner');
@@ -30,6 +31,7 @@ const App: React.FC = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [expenseFolders, setExpenseFolders] = useState<ExpenseFolder[]>(DEFAULT_FOLDERS);
   const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
+  const [currency, setCurrency] = useState<string>(DEFAULT_CURRENCY);
   const [tripName, setTripName] = useState<string>("My Awesome Trip");
 
   const [savedTrips, setSavedTrips] = useState<{id: string, name: string, lastUpdated: string}[]>([]);
@@ -61,6 +63,7 @@ const App: React.FC = () => {
     setExpenses([]);
     setExpenseFolders(DEFAULT_FOLDERS);
     setCategories(DEFAULT_CATEGORIES);
+    setCurrency(DEFAULT_CURRENCY);
     
     // Initial Data Object
     const initialData: TripData = {
@@ -71,7 +74,8 @@ const App: React.FC = () => {
         travelers: INITIAL_TRAVELERS,
         expenses: [],
         expenseFolders: DEFAULT_FOLDERS,
-        categories: DEFAULT_CATEGORIES
+        categories: DEFAULT_CATEGORIES,
+        currency: DEFAULT_CURRENCY
     };
 
     // Save Data & Metadata immediately
@@ -100,7 +104,8 @@ const App: React.FC = () => {
       travelers,
       expenses,
       expenseFolders,
-      categories
+      categories,
+      currency
     };
 
     // Save full data
@@ -130,8 +135,9 @@ const App: React.FC = () => {
         setTripDetails(data.trip);
         setTravelers(data.travelers);
         setExpenses(data.expenses);
-        setExpenseFolders(data.expenseFolders || DEFAULT_FOLDERS); // Fallback for older saves
+        setExpenseFolders(data.expenseFolders || DEFAULT_FOLDERS);
         setCategories(data.categories || DEFAULT_CATEGORIES);
+        setCurrency(data.currency || DEFAULT_CURRENCY);
         localStorage.setItem('wanderlust_active_id', data.id);
         setShowLoadMenu(false);
       } catch (e) {
@@ -159,6 +165,7 @@ const App: React.FC = () => {
         setExpenses([]);
         setExpenseFolders(DEFAULT_FOLDERS);
         setCategories(DEFAULT_CATEGORIES);
+        setCurrency(DEFAULT_CURRENCY);
         setTripName("My Awesome Trip");
       }
     }
@@ -177,13 +184,14 @@ const App: React.FC = () => {
         travelers,
         expenses,
         expenseFolders,
-        categories
+        categories,
+        currency
       };
       localStorage.setItem(`wanderlust_data_${activeTripId}`, JSON.stringify(fullData));
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [tripDetails, travelers, expenses, expenseFolders, categories, tripName, activeTripId]);
+  }, [tripDetails, travelers, expenses, expenseFolders, categories, currency, tripName, activeTripId]);
 
   return (
     <div className="min-h-screen bg-background text-gray-800 font-sans">
@@ -282,6 +290,8 @@ const App: React.FC = () => {
           <TripPlanner 
             trip={tripDetails} 
             onSaveTrip={setTripDetails} 
+            currency={currency}
+            onCurrencyChange={setCurrency}
           />
         )}
         
@@ -295,6 +305,7 @@ const App: React.FC = () => {
             onUpdateFolders={setExpenseFolders}
             categories={categories}
             onUpdateCategories={setCategories}
+            currency={currency}
           />
         )}
       </main>

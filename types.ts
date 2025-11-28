@@ -41,6 +41,7 @@ export interface Trip {
   startDate?: string;
   itinerary: DayPlan[];
   budget?: string;
+  targetBudget?: number;
   travelerCount: number;
   flights?: Flight[];
   insights?: TripInsights;
@@ -78,4 +79,20 @@ export interface TripData {
   expenses: Expense[];
   expenseFolders: ExpenseFolder[];
   categories?: string[];
+  currency?: string;
 }
+
+export const CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+  JPY: '¥',
+  AUD: 'A$',
+  CAD: 'C$',
+  CNY: '¥',
+  INR: '₹',
+  SGD: 'S$',
+  KRW: '₩',
+  MXN: 'Mex$',
+  CHF: 'Fr'
+};

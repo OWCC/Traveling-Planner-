@@ -2,7 +2,7 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { Plus, Camera, Receipt, Trash2, TrendingUp, PieChart, Users, ArrowRight, Folder, FolderPlus, Check, X } from 'lucide-react';
 import { PieChart as RePieChart, Pie, Cell, ResponsiveContainer, Tooltip as ReTooltip, Legend } from 'recharts';
-import { Traveler, Expense, Settlement, ExpenseFolder } from '../types';
+import { Traveler, Expense, Settlement, ExpenseFolder, CURRENCY_SYMBOLS } from '../types';
 import { parseReceiptImage } from '../services/geminiService';
 import { Button, Input, Card } from './UIComponents';
 
@@ -15,6 +15,7 @@ interface ExpenseTrackerProps {
   onUpdateFolders: (f: ExpenseFolder[]) => void;
   categories: string[];
   onUpdateCategories: (c: string[]) => void;
+  currency: string;
 }
 
 export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({ 
@@ -25,12 +26,15 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
     folders,
     onUpdateFolders,
     categories,
-    onUpdateCategories
+    onUpdateCategories,
+    currency
 }) => {
   const [activeView, setActiveView] = useState<'list' | 'analytics' | 'settle'>('list');
   const [isAdding, setIsAdding] = useState(false);
   const [processingReceipt, setProcessingReceipt] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const symbol = CURRENCY_SYMBOLS[currency] || '$';
 
   // Folder State
   const [activeFolderId, setActiveFolderId] = useState<string>('general');
@@ -262,7 +266,7 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
             <p className="text-sm text-teal-600 font-medium">
                 Total Spent {viewAllFolders ? '(All)' : `(${folders.find(f => f.id === activeFolderId)?.name})`}
             </p>
-            <h3 className="text-2xl font-bold text-teal-900">${totalSpent.toFixed(2)}</h3>
+            <h3 className="text-2xl font-bold text-teal-900">{symbol}{totalSpent.toFixed(2)}</h3>
           </div>
           <TrendingUp className="text-teal-500 w-8 h-8" />
         </Card>
@@ -318,7 +322,7 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
                   onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
                 />
                  <Input 
-                  label="Amount" 
+                  label={`Amount (${symbol})`}
                   type="number" 
                   value={newExpense.amount} 
                   onChange={(e) => setNewExpense({...newExpense, amount: parseFloat(e.target.value)})}
@@ -478,7 +482,7 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
                       </div>
                     </div>
                     <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-                      <span className="font-bold text-lg text-gray-900">${expense.amount.toFixed(2)}</span>
+                      <span className="font-bold text-lg text-gray-900">{symbol}{expense.amount.toFixed(2)}</span>
                       <button 
                         onClick={() => onUpdateExpenses(expenses.filter(e => e.id !== expense.id))}
                         className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all"
@@ -515,7 +519,7 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                     </Pie>
-                    <ReTooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
+                    <ReTooltip formatter={(value: number) => `${symbol}${value.toFixed(2)}`} />
                     <Legend />
                     </RePieChart>
                 </ResponsiveContainer>
@@ -550,7 +554,7 @@ export const ExpenseTracker: React.FC<ExpenseTrackerProps> = ({
                         {travelers.find(t => t.id === settlement.toId)?.name}
                       </div>
                     </div>
-                    <span className="font-bold text-lg text-secondary">${settlement.amount.toFixed(2)}</span>
+                    <span className="font-bold text-lg text-secondary">{symbol}{settlement.amount.toFixed(2)}</span>
                   </Card>
                 ))
               )}

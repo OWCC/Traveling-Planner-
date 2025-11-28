@@ -1,20 +1,25 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
-import { MapPin, Calendar as CalendarIcon, Sparkles, Map, Edit2, Save, X, Trash2, FileText, Mail, Plane, Plus, Link, CheckCircle, LogOut, ShieldAlert, CloudSun, Info, ExternalLink, RefreshCw, Image as ImageIcon, Navigation, Lightbulb } from 'lucide-react';
+import { MapPin, Calendar as CalendarIcon, Sparkles, Map, Edit2, Save, X, Trash2, FileText, Mail, Plane, Plus, Link, CheckCircle, LogOut, ShieldAlert, CloudSun, Info, ExternalLink, RefreshCw, Image as ImageIcon, Navigation, Lightbulb, DollarSign, Map as MapIcon } from 'lucide-react';
 import { generateItinerary, parseFlightEmail, generateTripInsights } from '../services/geminiService';
-import { Trip, DayPlan, Activity, Flight } from '../types';
+import { Trip, DayPlan, Activity, Flight, CURRENCY_SYMBOLS } from '../types';
 import { Button, Input, Card } from './UIComponents';
 
 interface TripPlannerProps {
   trip: Trip | null;
   onSaveTrip: (trip: Trip) => void;
+  currency: string;
+  onCurrencyChange: (currency: string) => void;
 }
 
-export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip }) => {
+export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, currency, onCurrencyChange }) => {
   const [loading, setLoading] = useState(false);
   const [flightLoading, setFlightLoading] = useState(false);
   const [insightsLoading, setInsightsLoading] = useState(false);
   const [isGmailLinked, setIsGmailLinked] = useState(false);
   
+  const symbol = CURRENCY_SYMBOLS[currency] || '$';
+
   // Default dates: Today and 3 days from now
   const today = new Date().toISOString().split('T')[0];
   const threeDaysLater = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -24,6 +29,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip }) =>
     startDate: today,
     endDate: threeDaysLater,
     budget: 'Moderate',
+    targetBudget: '',
     interests: 'Food, History, Nature',
     notes: '',
     flightNumber: '',
@@ -46,6 +52,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip }) =>
         startDate: start,
         endDate: end,
         budget: trip.budget || prev.budget,
+        targetBudget: trip.targetBudget ? trip.targetBudget.toString() : '',
       }));
     }
   }, [trip]);
@@ -84,6 +91,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip }) =>
 
   // Map State
   const [showMap, setShowMap] = useState(false);
+  const [activeDayMap, setActiveDayMap] = useState<number | null>(null);
 
   const handleGenerate = async () => {
     if (!formData.destination) return;
@@ -91,13 +99,14 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip }) =>
     setLoading(true);
     setEditingCell(null);
     try {
-      const promptContext = `${formData.interests}. ${formData.notes ? `Additional preferences: ${formData.notes}` : ''}`;
+      const budgetText = formData.targetBudget ? `${formData.budget} (Approx. ${currency} ${formData.targetBudget})` : formData.budget;
+      const promptContext = `${formData.interests}. ${formData.notes ? `Additional preferences: ${formData.notes}` : ''}. Currency: ${currency}.`;
       
       const generatedTrip = await generateItinerary(
         formData.destination,
         duration,
         promptContext,
-        formData.budget
+        budgetText
       );
 
       const initialFlights: Flight[] = [];
@@ -141,7 +150,8 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip }) =>
           ...generatedTrip, 
           startDate: formData.startDate, 
           flights: initialFlights,
-          insights: insights
+          insights: insights,
+          targetBudget: formData.targetBudget ? Number(formData.targetBudget) : undefined
       });
     } catch (error) {
       alert("Failed to generate itinerary. Please ensure your API Key is valid.");
@@ -207,6 +217,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip }) =>
         duration: duration,
         startDate: formData.startDate,
         budget: formData.budget,
+        targetBudget: formData.targetBudget ? Number(formData.targetBudget) : undefined,
         travelerCount: 1,
         itinerary: newItinerary,
         flights: initialFlights
@@ -443,6 +454,31 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip }) =>
       return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypoints ? `&waypoints=${waypoints}` : ''}&travelmode=driving`;
   };
 
+  const getEmbedRouteUrl = (activities: Activity[]) => {
+    const locations = activities
+        .map(a => a.location)
+        .filter(l => l && l !== 'Location' && l.trim() !== '')
+        .map(l => encodeURIComponent(l));
+    
+    if (locations.length === 0) return null;
+    
+    // If only one location, just show that location
+    if (locations.length === 1) {
+        return `https://maps.google.com/maps?q=${locations[0]}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+    }
+
+    // Construct query: from:Origin to:Waypoint1 to:Waypoint2 to:Dest
+    const origin = locations[0];
+    const dest = locations[locations.length - 1];
+    const waypoints = locations.slice(1, -1);
+    
+    let query = `from:${origin}`;
+    waypoints.forEach(wp => query += `+to:${wp}`);
+    query += `+to:${dest}`;
+
+    return `https://maps.google.com/maps?q=${query}&t=&z=12&ie=UTF8&iwloc=&output=embed`;
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Input Section */}
@@ -512,17 +548,42 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip }) =>
                 </span>
             </div>
 
+            {/* Currency Selector */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Budget</label>
-              <select 
-                className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
-                value={formData.budget}
-                onChange={(e) => setFormData({...formData, budget: e.target.value})}
-              >
-                <option>Budget-friendly</option>
-                <option>Moderate</option>
-                <option>Luxury</option>
-              </select>
+               <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+               <select
+                  className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
+                  value={currency}
+                  onChange={(e) => onCurrencyChange(e.target.value)}
+                >
+                  {Object.keys(CURRENCY_SYMBOLS).map(code => (
+                    <option key={code} value={code}>{code} ({CURRENCY_SYMBOLS[code]})</option>
+                  ))}
+                </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Budget Style</label>
+                  <select 
+                    className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
+                    value={formData.budget}
+                    onChange={(e) => setFormData({...formData, budget: e.target.value})}
+                  >
+                    <option>Budget</option>
+                    <option>Moderate</option>
+                    <option>Luxury</option>
+                  </select>
+                </div>
+                <div>
+                   <Input 
+                      label={`Target Budget (${symbol})`}
+                      type="number"
+                      placeholder="e.g. 2000"
+                      value={formData.targetBudget}
+                      onChange={(e) => setFormData({...formData, targetBudget: e.target.value})}
+                    />
+                </div>
             </div>
 
             <div>
@@ -803,7 +864,8 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip }) =>
                             `${trip.duration} Days`
                         )}
                         <span className="mx-1">•</span>
-                        {trip.budget || 'Custom'} Budget
+                        {trip.targetBudget ? `${symbol}${trip.targetBudget} ` : ''} 
+                        ({trip.budget || 'Custom'})
                       </p>
                     </div>
                   </div>
@@ -964,7 +1026,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip }) =>
               {trip?.itinerary?.map((day: DayPlan, dayIndex: number) => {
                 const dayDate = trip.startDate ? getDateForDay(trip.startDate, dayIndex) : null;
                 const routeLink = getDirectionLink(day.activities);
+                const embedUrl = getEmbedRouteUrl(day.activities);
                 const hasActivities = day.activities.length > 0;
+                const isMapOpen = activeDayMap === dayIndex;
 
                 return (
                 <Card key={dayIndex} className="p-0 border-l-4 border-l-primary">
@@ -983,16 +1047,30 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip }) =>
                         </span>
                         
                         {hasActivities && routeLink !== '#' && (
-                            <a 
-                                href={routeLink} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full transition-colors border border-blue-100"
-                                title="View planning direction on map"
-                            >
-                                <Navigation className="w-3 h-3" />
-                                <span className="hidden sm:inline">View Route</span>
-                            </a>
+                            <>
+                                <a 
+                                    href={routeLink} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full transition-colors border border-blue-100"
+                                    title="View planning direction on map"
+                                >
+                                    <Navigation className="w-3 h-3" />
+                                    <span className="hidden sm:inline">Directions</span>
+                                </a>
+                                
+                                <button
+                                    onClick={() => setActiveDayMap(isMapOpen ? null : dayIndex)}
+                                    className={`flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-full transition-colors border ${
+                                        isMapOpen 
+                                          ? 'bg-blue-600 text-white border-blue-600' 
+                                          : 'text-blue-600 bg-blue-50 hover:bg-blue-100 border-blue-100'
+                                    }`}
+                                >
+                                    <MapIcon className="w-3 h-3" />
+                                    <span className="hidden sm:inline">{isMapOpen ? 'Hide Map' : 'Show Map'}</span>
+                                </button>
+                            </>
                         )}
 
                         <Button size="sm" variant="ghost" onClick={() => addActivity(dayIndex)} className="h-8 w-8 p-0 rounded-full">
@@ -1000,6 +1078,25 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip }) =>
                         </Button>
                     </div>
                   </div>
+                  
+                  {/* Route Map */}
+                  {isMapOpen && embedUrl && (
+                      <div className="h-64 w-full bg-gray-100 border-b border-gray-200">
+                          <iframe
+                              width="100%"
+                              height="100%"
+                              frameBorder="0"
+                              src={embedUrl}
+                              title={`Route Map Day ${day.day}`}
+                          />
+                      </div>
+                  )}
+                  {isMapOpen && !embedUrl && hasActivities && (
+                      <div className="p-4 text-center text-sm text-gray-500 bg-gray-50 border-b border-gray-200">
+                          Not enough location data to generate a route map.
+                      </div>
+                  )}
+
                   <div className="divide-y divide-gray-100">
                     {day.activities.length === 0 && (
                         <div className="p-8 text-center text-gray-400 text-sm">
@@ -1047,7 +1144,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip }) =>
                                       <div className="w-1/3">
                                            <label className="text-xs text-gray-500 font-semibold uppercase mb-1 block">Cost</label>
                                           <div className="relative">
-                                              <span className="absolute left-2.5 top-2.5 text-gray-400 text-xs">$</span>
+                                              <span className="absolute left-2.5 top-2.5 text-gray-400 text-xs">{symbol}</span>
                                               <input 
                                                   value={tempActivity.estimatedCost}
                                                   onChange={(e) => updateTempActivity('estimatedCost', e.target.value)}
@@ -1092,7 +1189,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip }) =>
                                           </a>
                                           {act.estimatedCost && (
                                               <span className="flex items-center gap-1 text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full">
-                                                  $ {act.estimatedCost}
+                                                  {symbol} {act.estimatedCost}
                                               </span>
                                           )}
                                       </div>
