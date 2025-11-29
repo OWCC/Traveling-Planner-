@@ -62,3 +62,20 @@ export const Input: React.FC<InputProps> = ({ label, className = '', ...props })
     />
   </div>
 );
+
+export const ProgressBar: React.FC<{ value: number; max: number; className?: string; colorClass?: string }> = ({ 
+    value, 
+    max, 
+    className = '',
+    colorClass = 'bg-primary'
+}) => {
+    const percentage = Math.min(100, Math.max(0, (value / max) * 100));
+    return (
+        <div className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 ${className}`}>
+            <div 
+                className={`h-2.5 rounded-full transition-all duration-500 ${colorClass}`} 
+                style={{ width: `${percentage}%` }}
+            ></div>
+        </div>
+    );
+};

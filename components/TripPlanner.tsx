@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { MapPin, Calendar as CalendarIcon, Sparkles, Map, Edit2, Save, X, Trash2, FileText, Mail, Plane, Plus, Link, CheckCircle, LogOut, ShieldAlert, CloudSun, Info, ExternalLink, RefreshCw, Image as ImageIcon, Navigation, Lightbulb, DollarSign, Map as MapIcon } from 'lucide-react';
+import { MapPin, Calendar as CalendarIcon, Sparkles, Map, Edit2, Save, X, Trash2, FileText, Mail, Plane, Plus, Link, CheckCircle, LogOut, ShieldAlert, CloudSun, Info, ExternalLink, RefreshCw, Image as ImageIcon, Navigation, Lightbulb, DollarSign, Map as MapIcon, Coins } from 'lucide-react';
 import { generateItinerary, parseFlightEmail, generateTripInsights } from '../services/geminiService';
 import { Trip, DayPlan, Activity, Flight, CURRENCY_SYMBOLS } from '../types';
 import { Button, Input, Card } from './UIComponents';
@@ -139,7 +139,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
       // Automatically fetch insights after generation
       let insights = undefined;
       try {
-        insights = await generateTripInsights(formData.destination, formData.startDate);
+        insights = await generateTripInsights(formData.destination, formData.startDate, currency);
       } catch (e) {
         console.warn("Could not auto-fetch insights", e);
       }
@@ -163,7 +163,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
       if (!trip) return;
       setInsightsLoading(true);
       try {
-          const insights = await generateTripInsights(trip.destination, trip.startDate || today);
+          const insights = await generateTripInsights(trip.destination, trip.startDate || today, currency);
           onSaveTrip({ ...trip, insights });
       } catch (e) {
           alert("Failed to update insights.");
@@ -911,6 +911,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                                                     {title.includes('Safety') && <ShieldAlert className="w-5 h-5 text-red-500" />}
                                                     {title.includes('Emergency') && <Info className="w-5 h-5 text-green-500" />}
                                                     {title.includes('Tips') && <Lightbulb className="w-5 h-5 text-amber-500" />}
+                                                    {title.includes('Currency') && <Coins className="w-5 h-5 text-yellow-500" />}
                                                     {title.replace(/^#+\s*/, '')}
                                                 </h4>
                                                 <ul className="space-y-2">

@@ -17,48 +17,56 @@ export const generateItinerary = async (
   const prompt = `Plan a ${days}-day trip to ${destination}. 
   Budget: ${budget}. 
   Interests: ${interests}.
-  Provide a structured itinerary with specific activities, locations, and timings.`;
+  
+  IMPORTANT: Use the Google Maps tool to verify that every location provided exists and is geographically accurate. 
+  Ensure the order of activities within a day makes logical sense for a route.
+
+  Output the result strictly as a raw JSON object (no markdown, no code blocks) matching this structure:
+  {
+    "destination": "City, Country",
+    "duration": ${days},
+    "itinerary": [
+      {
+        "day": 1,
+        "theme": "Theme of the day",
+        "activities": [
+          {
+            "time": "HH:MM",
+            "activity": "Name of activity",
+            "location": "Verified Location Name",
+            "description": "Short description",
+            "estimatedCost": "10-20"
+          }
+        ]
+      }
+    ]
+  }`;
 
   try {
     const response = await ai.models.generateContent({
       model: model,
       contents: prompt,
       config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            destination: { type: Type.STRING },
-            duration: { type: Type.INTEGER },
-            itinerary: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  day: { type: Type.INTEGER },
-                  theme: { type: Type.STRING },
-                  activities: {
-                    type: Type.ARRAY,
-                    items: {
-                      type: Type.OBJECT,
-                      properties: {
-                        time: { type: Type.STRING },
-                        activity: { type: Type.STRING },
-                        location: { type: Type.STRING },
-                        description: { type: Type.STRING },
-                        estimatedCost: { type: Type.STRING }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+        tools: [{ googleMaps: {} }], // Enable Maps Grounding
+        // Note: responseMimeType: "application/json" is NOT supported with googleMaps tool
       }
     });
 
-    const tripData = JSON.parse(response.text || "{}");
+    let text = response.text || "{}";
+    
+    // Strip markdown code blocks if the model ignores the "no markdown" instruction
+    if (text.includes("```")) {
+      text = text.replace(/```(?:json)?|```/g, "").trim();
+    }
+
+    // Ensure we parse only the JSON object part
+    const startIndex = text.indexOf('{');
+    const endIndex = text.lastIndexOf('}');
+    if (startIndex !== -1 && endIndex !== -1) {
+        text = text.substring(startIndex, endIndex + 1);
+    }
+
+    const tripData = JSON.parse(text);
     return {
       ...tripData,
       travelerCount: 1 // Default, will be updated by app state
@@ -71,12 +79,13 @@ export const generateItinerary = async (
 
 export const generateTripInsights = async (
   destination: string, 
-  startDate: string
+  startDate: string,
+  userCurrency: string
 ): Promise<TripInsights> => {
   const model = "gemini-2.5-flash";
   
   const prompt = `I am planning a trip to ${destination} starting on ${startDate}.
-  Using Google Search, please provide a concise travel safety and weather report.
+  Using Google Search, please provide a concise travel safety, weather, and currency report.
   
   Structure the response with the following Markdown headers.
   Under each header, provide strictly 3-5 short bullet points (no paragraphs).
@@ -92,6 +101,11 @@ export const generateTripInsights = async (
   ## 🏥 Emergency
   * (Bullet point with emergency numbers)
   * (Bullet point with nearest hospital advice)
+  
+  ## 💱 Currency
+  * (Bullet point with Local Currency name and code)
+  * (Bullet point with approximate exchange rate: 1 ${userCurrency} = X Local Currency)
+  * (If multiple countries are involved, list currencies for each location)
 
   ## 💡 Quick Tips
   * (Bullet point about tipping)
