@@ -143,6 +143,38 @@ export const generateTripInsights = async (
   }
 };
 
+export const getExchangeRate = async (base: string, target: string): Promise<number> => {
+  const model = "gemini-2.5-flash";
+  try {
+    const response = await ai.models.generateContent({
+      model: model,
+      contents: `Find the current exchange rate from ${base} to ${target}.
+      Return strict JSON: { "rate": number }. Example: { "rate": 0.85 }`,
+      config: {
+        tools: [{ googleSearch: {} }]
+        // DO NOT set responseMimeType when using search tools
+      }
+    });
+
+    let text = response.text || "{}";
+    // Strip markdown if present
+    text = text.replace(/```(?:json)?|```/g, "").trim();
+    
+    // Find JSON object
+    const startIndex = text.indexOf('{');
+    const endIndex = text.lastIndexOf('}');
+    if (startIndex !== -1 && endIndex !== -1) {
+        text = text.substring(startIndex, endIndex + 1);
+        const json = JSON.parse(text);
+        return json.rate || 0;
+    }
+    return 0;
+  } catch (error) {
+    console.error("Exchange Rate Error:", error);
+    return 0;
+  }
+};
+
 export const parseReceiptImage = async (base64Image: string): Promise<Partial<Expense>> => {
   const model = "gemini-2.5-flash-image";
 

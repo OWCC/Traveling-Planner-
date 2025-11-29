@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Plane, Wallet, LayoutDashboard, Save, FolderOpen, Plus, Trash2, Map as MapIcon, X, ChevronDown, ExternalLink, Home } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plane, Wallet, LayoutDashboard, Save, FolderOpen, Plus, Trash2, Map as MapIcon, X, ChevronDown, ExternalLink, Home, Download, Upload, FileJson } from 'lucide-react';
 import { TripPlanner } from './components/TripPlanner';
 import { ExpenseTracker } from './components/ExpenseTracker';
 import { Dashboard } from './components/Dashboard';
@@ -35,6 +35,7 @@ const App: React.FC = () => {
 
   const [savedTrips, setSavedTrips] = useState<{id: string, name: string, lastUpdated: string}[]>([]);
   const [showLoadMenu, setShowLoadMenu] = useState(false);
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   // Map State
   const [showSideMap, setShowSideMap] = useState(false);
@@ -184,6 +185,88 @@ const App: React.FC = () => {
     }
   };
 
+  // Export Logic
+  const handleExportTrip = () => {
+    if (!activeTripId) return;
+
+    const fullData: TripData = {
+      id: activeTripId,
+      name: tripName,
+      lastUpdated: new Date().toISOString(),
+      trip: tripDetails,
+      travelers,
+      expenses,
+      expenseFolders,
+      categories,
+      currency
+    };
+
+    const fileName = `${tripName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.json`;
+    const jsonStr = JSON.stringify(fullData, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const href = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(href);
+  };
+
+  // Import Logic
+  const handleImportTrip = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const content = e.target?.result as string;
+            const data: TripData = JSON.parse(content);
+            
+            // Basic validation
+            if (!data.id || !data.name) {
+                throw new Error("Invalid trip file format");
+            }
+
+            // Create a new ID to avoid conflicts, or keep existing if preferred?
+            // Let's regenerate ID to ensure unique import, but keep name
+            const newId = Date.now().toString();
+            const importedData = { ...data, id: newId, lastUpdated: new Date().toISOString() };
+            
+            // Save to local storage
+            localStorage.setItem(`wanderlust_data_${newId}`, JSON.stringify(importedData));
+            
+            // Update metadata
+            const newMeta = { id: newId, name: importedData.name, lastUpdated: importedData.lastUpdated };
+            const updatedList = [newMeta, ...savedTrips];
+            setSavedTrips(updatedList);
+            localStorage.setItem('wanderlust_projects', JSON.stringify(updatedList));
+            
+            // Load it
+            setActiveTripId(newId);
+            setTripName(importedData.name);
+            setTripDetails(importedData.trip);
+            setTravelers(importedData.travelers);
+            setExpenses(importedData.expenses);
+            setExpenseFolders(importedData.expenseFolders || DEFAULT_FOLDERS);
+            setCategories(importedData.categories || DEFAULT_CATEGORIES);
+            setCurrency(importedData.currency || DEFAULT_CURRENCY);
+            localStorage.setItem('wanderlust_active_id', newId);
+            
+            alert(`Trip "${importedData.name}" imported successfully!`);
+            setShowLoadMenu(false);
+            if (importInputRef.current) importInputRef.current.value = '';
+
+        } catch (error) {
+            console.error("Import failed", error);
+            alert("Failed to import trip. The file may be invalid.");
+        }
+    };
+    reader.readAsText(file);
+  };
+
   // Auto-save effect (Debounced)
   useEffect(() => {
     if (!activeTripId) return;
@@ -329,6 +412,15 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans transition-colors duration-200">
+      {/* Hidden File Input for Import */}
+      <input 
+          type="file" 
+          ref={importInputRef} 
+          className="hidden" 
+          accept=".json" 
+          onChange={handleImportTrip} 
+      />
+
       {/* Header - Fixed Height */}
       <header className="flex-shrink-0 bg-white dark:bg-gray-800 shadow-sm z-50 dark:border-b dark:border-gray-700">
         <div className="w-full px-2 sm:px-6 lg:px-8">
@@ -410,7 +502,7 @@ const App: React.FC = () => {
                             <Plus className="w-3 h-3 mr-1" /> New
                         </Button>
                     </div>
-                    <div className="max-h-64 overflow-y-auto">
+                    <div className="max-h-56 overflow-y-auto">
                         {savedTrips.length === 0 && <div className="px-4 py-3 text-sm text-gray-400 text-center">No saved trips</div>}
                         {savedTrips.map(trip => (
                             <div 
@@ -418,18 +510,35 @@ const App: React.FC = () => {
                                 onClick={() => loadTrip(trip.id)}
                                 className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex justify-between items-center group ${activeTripId === trip.id ? 'bg-teal-50 dark:bg-teal-900/30 border-l-4 border-primary' : ''}`}
                             >
-                                <div>
-                                    <div className="font-medium text-gray-800 dark:text-gray-200 text-sm">{trip.name}</div>
+                                <div className="truncate pr-2">
+                                    <div className="font-medium text-gray-800 dark:text-gray-200 text-sm truncate">{trip.name}</div>
                                     <div className="text-xs text-gray-400">{new Date(trip.lastUpdated).toLocaleDateString()}</div>
                                 </div>
                                 <button 
                                     onClick={(e) => deleteTrip(e, trip.id)}
-                                    className="p-1.5 text-gray-400 hover:text-red-500 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                    className="p-1.5 text-gray-400 hover:text-red-500 rounded opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
                                 >
                                     <Trash2 className="w-3 h-3" />
                                 </button>
                             </div>
                         ))}
+                    </div>
+                    {/* Import/Export Actions */}
+                    <div className="border-t border-gray-100 dark:border-gray-700 mt-1 pt-1 bg-gray-50 dark:bg-gray-800/50">
+                        <button 
+                            onClick={() => importInputRef.current?.click()}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                        >
+                            <Upload className="w-3 h-3" /> Import Trip (JSON)
+                        </button>
+                        {activeTripId && (
+                            <button 
+                                onClick={handleExportTrip}
+                                className="w-full text-left px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                            >
+                                <Download className="w-3 h-3" /> Export Current Trip
+                            </button>
+                        )}
                     </div>
                   </div>
                 )}
@@ -459,6 +568,7 @@ const App: React.FC = () => {
                     onCreateTrip={createNewTrip}
                     currency={currency}
                     onNavigate={(tab) => setActiveTab(tab as any)}
+                    onExportTrip={handleExportTrip}
                 />
             )}
 

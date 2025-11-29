@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { MapPin, Calendar as CalendarIcon, Sparkles, Map, Edit2, Save, X, Trash2, FileText, Mail, Plane, Plus, Link, CheckCircle, LogOut, ShieldAlert, CloudSun, Info, ExternalLink, RefreshCw, Image as ImageIcon, Navigation, Lightbulb, DollarSign, Map as MapIcon, Coins } from 'lucide-react';
-import { generateItinerary, parseFlightEmail, generateTripInsights } from '../services/geminiService';
+import { MapPin, Calendar as CalendarIcon, Sparkles, Map, Edit2, Save, X, Trash2, FileText, Mail, Plane, Plus, Link, CheckCircle, LogOut, ShieldAlert, CloudSun, Info, ExternalLink, RefreshCw, Image as ImageIcon, Navigation, Lightbulb, DollarSign, Map as MapIcon, Coins, ArrowRightLeft, ChevronDown, ChevronUp } from 'lucide-react';
+import { generateItinerary, parseFlightEmail, generateTripInsights, getExchangeRate } from '../services/geminiService';
 import { Trip, DayPlan, Activity, Flight, CURRENCY_SYMBOLS } from '../types';
-import { Button, Input, Card } from './UIComponents';
+import { Button, Input, Card, Modal } from './UIComponents';
 
 interface TripPlannerProps {
   trip: Trip | null;
@@ -90,7 +90,32 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
 
   // Map State
   const [showMap, setShowMap] = useState(false);
+  const [previewMap, setPreviewMap] = useState(false); // Map for Input Form Preview
   const [activeDayMap, setActiveDayMap] = useState<number | null>(null);
+
+  // Currency Converter State
+  const [showConverter, setShowConverter] = useState(false);
+  const [convBase, setConvBase] = useState(currency);
+  const [convTarget, setConvTarget] = useState('EUR');
+  const [convAmount, setConvAmount] = useState<number>(1);
+  const [convRate, setConvRate] = useState<number | null>(null);
+  const [convLoading, setConvLoading] = useState(false);
+
+  const handleFetchRate = async () => {
+      setConvLoading(true);
+      try {
+          const rate = await getExchangeRate(convBase, convTarget);
+          if (rate > 0) {
+              setConvRate(rate);
+          } else {
+              alert("Could not fetch real-time rate. Please try again.");
+          }
+      } catch(e) {
+          console.error(e);
+      } finally {
+          setConvLoading(false);
+      }
+  };
 
   const handleGenerate = async () => {
     if (!formData.destination) return;
@@ -480,6 +505,56 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Flight Modal Form */}
+      <Modal isOpen={isFlightFormOpen} onClose={cancelFlightEdit} title={editingFlightIndex !== null ? 'Edit Flight' : 'Add Flight'}>
+         <div className="space-y-4">
+            <Input 
+                label="Airline"
+                placeholder="e.g. United Airlines"
+                value={tempFlight.airline}
+                onChange={e => setTempFlight({...tempFlight, airline: e.target.value})}
+            />
+            <Input 
+                label="Flight Number"
+                placeholder="e.g. UA 123"
+                value={tempFlight.flightNumber}
+                onChange={e => setTempFlight({...tempFlight, flightNumber: e.target.value})}
+            />
+             <div className="grid grid-cols-2 gap-4">
+                <Input 
+                    label="Departure Airport"
+                    placeholder="e.g. JFK"
+                    value={tempFlight.departureAirport}
+                    onChange={e => setTempFlight({...tempFlight, departureAirport: e.target.value})}
+                />
+                <Input 
+                    label="Arrival Airport"
+                    placeholder="e.g. LHR"
+                    value={tempFlight.arrivalAirport}
+                    onChange={e => setTempFlight({...tempFlight, arrivalAirport: e.target.value})}
+                />
+            </div>
+             <div className="grid grid-cols-2 gap-4">
+                <Input 
+                    label="Departure Time"
+                    placeholder="e.g. 10:00 AM"
+                    value={tempFlight.departureTime}
+                    onChange={e => setTempFlight({...tempFlight, departureTime: e.target.value})}
+                />
+                <Input 
+                    label="Arrival Time"
+                    placeholder="e.g. 05:00 PM"
+                    value={tempFlight.arrivalTime}
+                    onChange={e => setTempFlight({...tempFlight, arrivalTime: e.target.value})}
+                />
+            </div>
+            <div className="flex gap-3 mt-4">
+                <Button variant="ghost" onClick={cancelFlightEdit} className="flex-1">Cancel</Button>
+                <Button onClick={saveFlight} className="flex-1">Save Flight</Button>
+            </div>
+         </div>
+      </Modal>
+
       {/* Input Section */}
       <div className="lg:col-span-1 space-y-6">
         <Card className="p-4 sm:p-6">
@@ -489,12 +564,41 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
           </div>
           
           <div className="space-y-4">
-            <Input 
-              label="Where to?" 
-              placeholder="e.g. Kyoto, Japan" 
-              value={formData.destination}
-              onChange={(e) => setFormData({...formData, destination: e.target.value})}
-            />
+            <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Where to?</label>
+                <div className="flex gap-2">
+                    <input
+                        className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors placeholder-gray-400"
+                        placeholder="e.g. Kyoto, Japan" 
+                        value={formData.destination}
+                        onChange={(e) => setFormData({...formData, destination: e.target.value})}
+                    />
+                    <Button 
+                        variant="outline" 
+                        size="sm"
+                        disabled={!formData.destination}
+                        onClick={() => setPreviewMap(!previewMap)}
+                        className={`border-gray-600 text-gray-300 hover:text-white hover:bg-gray-600 ${previewMap ? 'bg-gray-600 text-white' : ''}`}
+                        title="Preview Destination Map"
+                    >
+                        <MapIcon className="w-5 h-5" />
+                    </Button>
+                </div>
+                {previewMap && formData.destination && (
+                    <div className="mt-3 h-48 w-full rounded-lg overflow-hidden border border-gray-600 shadow-inner bg-gray-800 animate-in fade-in zoom-in-95">
+                        <iframe 
+                            width="100%" 
+                            height="100%" 
+                            frameBorder="0" 
+                            scrolling="no" 
+                            marginHeight={0} 
+                            marginWidth={0} 
+                            src={`https://maps.google.com/maps?q=${encodeURIComponent(formData.destination)}&t=&z=12&ie=UTF8&iwloc=&output=embed`}
+                            title="Destination Preview"
+                        />
+                    </div>
+                )}
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input 
@@ -647,157 +751,102 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                     </div>
                 </div>
                 
-                {isFlightFormOpen ? (
-                     <div className="space-y-3 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
-                        <div className="flex justify-between items-center mb-2">
-                             <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300">{editingFlightIndex !== null ? 'Edit Flight' : 'Add Flight'}</h4>
-                             <button onClick={cancelFlightEdit} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"><X className="w-4 h-4"/></button>
-                        </div>
-                        <input 
-                            placeholder="Airline (e.g. United)"
-                            className="w-full px-2 py-1.5 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded text-sm"
-                            value={tempFlight.airline}
-                            onChange={e => setTempFlight({...tempFlight, airline: e.target.value})}
-                        />
-                        <input 
-                            placeholder="Flight Number (e.g. UA 123)"
-                            className="w-full px-2 py-1.5 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded text-sm"
-                            value={tempFlight.flightNumber}
-                            onChange={e => setTempFlight({...tempFlight, flightNumber: e.target.value})}
-                        />
-                         <div className="grid grid-cols-2 gap-2">
-                            <input 
-                                placeholder="Dep Airport"
-                                className="w-full px-2 py-1.5 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded text-sm"
-                                value={tempFlight.departureAirport}
-                                onChange={e => setTempFlight({...tempFlight, departureAirport: e.target.value})}
-                            />
-                            <input 
-                                placeholder="Arr Airport"
-                                className="w-full px-2 py-1.5 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded text-sm"
-                                value={tempFlight.arrivalAirport}
-                                onChange={e => setTempFlight({...tempFlight, arrivalAirport: e.target.value})}
-                            />
-                        </div>
-                         <div className="grid grid-cols-2 gap-2">
-                            <input 
-                                placeholder="Dep Time"
-                                className="w-full px-2 py-1.5 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded text-sm"
-                                value={tempFlight.departureTime}
-                                onChange={e => setTempFlight({...tempFlight, departureTime: e.target.value})}
-                            />
-                            <input 
-                                placeholder="Arr Time"
-                                className="w-full px-2 py-1.5 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded text-sm"
-                                value={tempFlight.arrivalTime}
-                                onChange={e => setTempFlight({...tempFlight, arrivalTime: e.target.value})}
-                            />
-                        </div>
-                        <div className="flex gap-2 mt-2">
-                            <Button size="sm" variant="ghost" onClick={cancelFlightEdit} className="flex-1">Cancel</Button>
-                            <Button size="sm" onClick={saveFlight} className="flex-1">Save Flight</Button>
-                        </div>
-                     </div>
+                {!isGmailLinked ? (
+                    <div className="space-y-3">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Link your Google account to automatically find and track flights from your Gmail.
+                        </p>
+                        <Button 
+                            variant="outline" 
+                            onClick={handleLinkGmail}
+                            isLoading={flightLoading}
+                            className="w-full border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        >
+                            <Link className="w-4 h-4 mr-2" />
+                            Connect Google Account
+                        </Button>
+                    </div>
                 ) : (
-                    <>
-                        {!isGmailLinked ? (
-                            <div className="space-y-3">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    Link your Google account to automatically find and track flights from your Gmail.
-                                </p>
-                                <Button 
-                                    variant="outline" 
-                                    onClick={handleLinkGmail}
-                                    isLoading={flightLoading}
-                                    className="w-full border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                                >
-                                    <Link className="w-4 h-4 mr-2" />
-                                    Connect Google Account
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between bg-green-50 dark:bg-green-900/30 p-2 rounded border border-green-100 dark:border-green-800">
-                                    <div className="flex items-center gap-2">
-                                        <div className="bg-green-100 dark:bg-green-800 p-1 rounded-full">
-                                            <Mail className="w-3 h-3 text-green-600 dark:text-green-300" />
-                                        </div>
-                                        <span className="text-xs font-medium text-green-800 dark:text-green-200">Gmail Connected</span>
-                                    </div>
-                                    <button onClick={handleUnlinkGmail} className="text-xs text-gray-400 hover:text-red-500">
-                                        <LogOut className="w-3 h-3" />
-                                    </button>
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between bg-green-50 dark:bg-green-900/30 p-2 rounded border border-green-100 dark:border-green-800">
+                            <div className="flex items-center gap-2">
+                                <div className="bg-green-100 dark:bg-green-800 p-1 rounded-full">
+                                    <Mail className="w-3 h-3 text-green-600 dark:text-green-300" />
                                 </div>
-
-                                <Button 
-                                    onClick={handleGmailSync}
-                                    isLoading={flightLoading}
-                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                                >
-                                    <CheckCircle className="w-4 h-4 mr-2" />
-                                    Scan Inbox for Flights
-                                </Button>
+                                <span className="text-xs font-medium text-green-800 dark:text-green-200">Gmail Connected</span>
                             </div>
-                        )}
-
-                        <div className="relative flex items-center py-4">
-                            <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
-                            <span className="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase font-medium">Or</span>
-                            <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+                            <button onClick={handleUnlinkGmail} className="text-xs text-gray-400 hover:text-red-500">
+                                <LogOut className="w-3 h-3" />
+                            </button>
                         </div>
 
-                        <div className="space-y-2">
-                            <Button 
-                                variant="outline"
-                                size="sm" 
-                                onClick={() => openFlightForm()}
-                                className="w-full text-xs"
-                            >
-                                <Plus className="w-3 h-3 mr-2" />
-                                Add Flight Manually
-                            </Button>
-
-                            {!showEmailInput ? (
-                                <button 
-                                    onClick={() => setShowEmailInput(true)}
-                                    className="w-full text-xs text-center text-gray-500 hover:text-primary pt-2"
-                                >
-                                    Paste email text...
-                                </button>
-                            ) : (
-                                <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700">
-                                     <textarea 
-                                        className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-xs"
-                                        rows={3}
-                                        placeholder="Paste flight confirmation text here..."
-                                        value={emailText}
-                                        onChange={(e) => setEmailText(e.target.value)}
-                                    />
-                                    <div className="flex gap-2">
-                                        <Button 
-                                            variant="secondary" 
-                                            size="sm"
-                                            onClick={handleParseEmail}
-                                            disabled={!emailText}
-                                            isLoading={flightLoading}
-                                            className="w-full text-xs"
-                                        >
-                                            Parse
-                                        </Button>
-                                        <Button 
-                                            variant="ghost"
-                                            size="sm" 
-                                            onClick={() => setShowEmailInput(false)}
-                                            className="text-xs"
-                                        >
-                                            Cancel
-                                        </Button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </>
+                        <Button 
+                            onClick={handleGmailSync}
+                            isLoading={flightLoading}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Scan Inbox for Flights
+                        </Button>
+                    </div>
                 )}
+
+                <div className="relative flex items-center py-4">
+                    <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+                    <span className="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase font-medium">Or</span>
+                    <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+                </div>
+
+                <div className="space-y-2">
+                    <Button 
+                        variant="outline"
+                        size="sm" 
+                        onClick={() => openFlightForm()}
+                        className="w-full text-xs"
+                    >
+                        <Plus className="w-3 h-3 mr-2" />
+                        Add Flight Manually
+                    </Button>
+
+                    {!showEmailInput ? (
+                        <button 
+                            onClick={() => setShowEmailInput(true)}
+                            className="w-full text-xs text-center text-gray-500 hover:text-primary pt-2"
+                        >
+                            Paste email text...
+                        </button>
+                    ) : (
+                        <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                                <textarea 
+                                className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-xs"
+                                rows={3}
+                                placeholder="Paste flight confirmation text here..."
+                                value={emailText}
+                                onChange={(e) => setEmailText(e.target.value)}
+                            />
+                            <div className="flex gap-2">
+                                <Button 
+                                    variant="secondary" 
+                                    size="sm"
+                                    onClick={handleParseEmail}
+                                    disabled={!emailText}
+                                    isLoading={flightLoading}
+                                    className="w-full text-xs"
+                                >
+                                    Parse
+                                </Button>
+                                <Button 
+                                    variant="ghost"
+                                    size="sm" 
+                                    onClick={() => setShowEmailInput(false)}
+                                    className="text-xs"
+                                >
+                                    Cancel
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </Card>
         )}
       </div>
@@ -880,17 +929,76 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ trip, onSaveTrip, curr
                             <ShieldAlert className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                             <h3 className="font-bold text-gray-900 dark:text-white">Safety & Weather Insights</h3>
                         </div>
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={handleFetchInsights}
-                            isLoading={insightsLoading}
-                            className="text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900 hover:text-orange-800 dark:hover:text-orange-200"
-                        >
-                            <RefreshCw className="w-4 h-4 mr-1" />
-                            Update Live Info
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => setShowConverter(!showConverter)}
+                                className={`text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900 hover:text-orange-800 dark:hover:text-orange-200 ${showConverter ? 'bg-orange-100 dark:bg-orange-900' : ''}`}
+                            >
+                                <ArrowRightLeft className="w-4 h-4 mr-1" />
+                                Currency
+                                {showConverter ? <ChevronUp className="w-3 h-3 ml-1" /> : <ChevronDown className="w-3 h-3 ml-1" />}
+                            </Button>
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={handleFetchInsights}
+                                isLoading={insightsLoading}
+                                className="text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900 hover:text-orange-800 dark:hover:text-orange-200"
+                            >
+                                <RefreshCw className="w-4 h-4 mr-1" />
+                                Update Live Info
+                            </Button>
+                        </div>
                     </div>
+
+                    {/* Collapsible Currency Converter */}
+                    {showConverter && (
+                        <div className="bg-orange-50/50 dark:bg-orange-900/10 border-b border-orange-100 dark:border-orange-900 p-4 animate-in slide-in-from-top-2">
+                            <div className="flex flex-col sm:flex-row items-center gap-4 bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                                <div className="flex-1 flex gap-2 items-center w-full">
+                                    <input 
+                                        type="number" 
+                                        value={convAmount}
+                                        onChange={(e) => setConvAmount(parseFloat(e.target.value) || 0)}
+                                        className="w-24 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-center font-bold focus:outline-none focus:ring-2 focus:ring-orange-400 dark:text-white"
+                                    />
+                                    <select 
+                                        value={convBase}
+                                        onChange={(e) => setConvBase(e.target.value)}
+                                        className="flex-1 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-orange-400 dark:text-white"
+                                    >
+                                        {Object.keys(CURRENCY_SYMBOLS).map(c => <option key={c} value={c}>{c}</option>)}
+                                    </select>
+                                </div>
+                                <div className="text-gray-400">
+                                    <ArrowRightLeft className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1 flex gap-2 items-center w-full">
+                                    <div className="w-24 p-2 bg-orange-100 dark:bg-orange-900/40 rounded-lg text-center font-bold text-orange-700 dark:text-orange-300">
+                                        {convRate ? (convAmount * convRate).toFixed(2) : '---'}
+                                    </div>
+                                    <select 
+                                        value={convTarget}
+                                        onChange={(e) => setConvTarget(e.target.value)}
+                                        className="flex-1 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-orange-400 dark:text-white"
+                                    >
+                                        {Object.keys(CURRENCY_SYMBOLS).map(c => <option key={c} value={c}>{c}</option>)}
+                                    </select>
+                                </div>
+                                <Button size="sm" onClick={handleFetchRate} isLoading={convLoading} className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white border-none">
+                                    Get Rate
+                                </Button>
+                            </div>
+                            {convRate && (
+                                <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
+                                    1 {convBase} ≈ {convRate} {convTarget}. Rates are approximate via Google Search.
+                                </p>
+                            )}
+                        </div>
+                    )}
+
                     <div className="p-4 sm:p-6 bg-white dark:bg-gray-800">
                         {trip.insights ? (
                             <div className="space-y-4">
